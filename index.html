@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a0d0c" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="description" content="<Tool Name> — a small, standalone web tool by Arborae." />
+  <title>&lt;Tool Name&gt; · Arborae</title>
+  <script>
+    /* Entrance animation only when motion is allowed. If Motion never loads, the class is removed and nothing stays hidden. */
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+      var root = document.documentElement;
+      root.classList.add('motion-ready');
+      window.__arboraeReveal = setTimeout(function () { root.classList.remove('motion-ready'); }, 1500);
+    })();
+  </script>
+  <style>
+    :root {
+      /* Ink-green ramp: neutrals tinted toward the forest, brand green as the one accent */
+      --bg-deep: #070a09;
+      --bg: #0a0d0c;
+      --surface: #111614;
+      --hairline: rgba(236, 241, 239, 0.08);
+      --hairline-strong: rgba(236, 241, 239, 0.14);
+      --text: #ecf1ef;
+      --muted: #a3b1ac;
+      --dim: #7d8a85;
+      --brand: #00b585;
+      --brand-hover: #19c796;
+      --brand-ink: #3ecf9f;
+      --brand-text: #00b585;
+      --on-brand: #04110d;
+      --btn-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+      --panel-shadow: none;
+      --radius-panel: 16px;
+      --radius-control: 10px;
+      --radius-inner: 8px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* Light theme: neutral ramp from the Unslop tokens, darker greens where green is text (AA on white) */
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg-deep: #f4f4f5;
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --hairline: rgba(23, 23, 23, 0.08);
+        --hairline-strong: rgba(23, 23, 23, 0.16);
+        --text: #171717;
+        --muted: #525252;
+        --dim: #6b6b6b;
+        --brand: #00b585;
+        --brand-hover: #00a377;
+        --brand-ink: #007a59;
+        --brand-text: #007a59;
+        --on-brand: #04110d;
+        --btn-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+        --panel-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: var(--brand-ink);
+      text-decoration: none;
+      transition: color 160ms var(--ease);
+    }
+
+    a:hover {
+      color: var(--text);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--brand-ink);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 920px;
+      margin: 0 auto;
+      padding-inline: 24px;
+    }
+
+    /* Header */
+    .site-header {
+      border-bottom: 1px solid var(--hairline);
+      background: var(--bg-deep);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 56px;
+    }
+
+    .brand {
+      min-width: 0;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 1.25;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand:hover {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .brand span {
+      color: var(--brand-text);
+    }
+
+    .back-link {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Hero */
+    main {
+      flex: 1;
+      padding: 96px 0 80px;
+    }
+
+    .hero {
+      margin-bottom: 48px;
+    }
+
+    .eyebrow {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 20px;
+      color: var(--dim);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: clamp(2.25rem, 6vw, 3.5rem);
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 36rem;
+      font-size: 18px;
+      line-height: 28px;
+      color: var(--muted);
+    }
+
+    /* Workspace: the tool itself, framed as an instrument window */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-panel);
+      overflow: hidden;
+      box-shadow: var(--panel-shadow);
+      transition: border-color 180ms var(--ease);
+    }
+
+    .panel:hover {
+      border-color: var(--hairline-strong);
+    }
+
+    .panel-bar {
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--hairline);
+      background: var(--bg-deep);
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+      color: var(--text);
+    }
+
+    .panel-body {
+      padding: 24px;
+    }
+
+    .panel p {
+      margin: 0 0 20px;
+      color: var(--muted);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 20px;
+      border-radius: var(--radius-control);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      background: var(--brand);
+      color: var(--on-brand);
+      box-shadow: var(--btn-highlight);
+      transition: background-color 160ms var(--ease), transform 120ms var(--ease);
+    }
+
+    .btn:hover {
+      background: var(--brand-hover);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Output console, with the signature status dot */
+    .output {
+      position: relative;
+      margin-top: 16px;
+      padding: 12px 16px 12px 36px;
+      border-radius: var(--radius-inner);
+      border: 1px solid var(--hairline);
+      background: var(--bg-deep);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 20px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .output::before {
+      content: "";
+      position: absolute;
+      left: 16px;
+      top: 18px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--brand);
+    }
+
+    /* Footer */
+    .site-footer {
+      border-top: 1px solid var(--hairline);
+      padding: 24px 0;
+      font-size: 14px;
+      color: var(--dim);
+    }
+
+    .site-footer a {
+      color: var(--muted);
+    }
+
+    .site-footer a:hover {
+      color: var(--text);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Entrance: hidden only while Motion is expected; removed on failure or timeout */
+    .motion-ready [data-reveal] {
+      opacity: 0;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding-inline: 16px;
+      }
+
+      main {
+        padding: 48px 0 64px;
+      }
+
+      .hero {
+        margin-bottom: 32px;
+      }
+
+      .panel-bar {
+        padding: 0 16px;
+      }
+
+      .panel-body {
+        padding: 16px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top"><span>Arborae</span> · &lt;Tool Name&gt;</a>
+      <a class="back-link" href="https://arborae.github.io/#tools">← All tools</a>
+    </div>
+  </header>
+
+  <main id="top" class="container">
+    <section class="hero">
+      <span class="eyebrow" data-reveal>// arborae web tool</span>
+      <h1 data-reveal>&lt;Tool Name&gt;</h1>
+      <p class="lead" data-reveal>
+        A clean, single-file web utility running entirely in your browser.
+      </p>
+    </section>
+
+    <section class="panel" aria-labelledby="workspace-heading" data-reveal>
+      <div class="panel-bar">
+        <h2 id="workspace-heading">Workspace</h2>
+      </div>
+      <div class="panel-body">
+        <p>Replace this starter panel with your tool UI and inline JavaScript.</p>
+        <button type="button" class="btn" id="demo-action">Run sample check</button>
+        <div class="output" id="demo-output" role="status" aria-live="polite">
+          Ready.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>PolyForm Noncommercial 1.0.0 · <a href="https://arborae.github.io/">Arborae</a></span>
+      <div class="footer-links">
+        <a href="https://github.com/arborae/<repo-name>" target="_blank" rel="noreferrer noopener">Source</a>
+        <a href="https://arborae.github.io/#tools">Tools index</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const btn = document.getElementById('demo-action');
+      const output = document.getElementById('demo-output');
+      if (!btn || !output) return;
+      btn.addEventListener('click', function () {
+        output.textContent = 'Starter template active — ' + new Date().toISOString();
+      });
+    })();
+  </script>
+
+  <!-- Optional motion (motion.dev). The page works the same without it. -->
+  <script src="https://cdn.jsdelivr.net/npm/motion@14.10.1/dist/motion.js"
+    integrity="sha384-lnXs/o2QVHbH7aNA9JGkcMdW38AWVgMHWWrPU/fGgHi+eRj2j0a8va/1nlijpjHX" crossorigin="anonymous"
+    onerror="document.documentElement.classList.remove('motion-ready')"></script>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const M = window.Motion;
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      clearTimeout(window.__arboraeReveal);
+      if (!M || reduce || !M.animate || !M.inView) {
+        root.classList.remove('motion-ready');
+        return;
+      }
+
+      const ease = [0.22, 1, 0.36, 1];
+      const items = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
+
+      // Hand the hidden start state from the class to inline styles, then fade and rise each element as it enters.
+      // Elements entering together get a small stagger (50ms, at most six steps).
+      items.forEach(function (el) { el.style.opacity = '0'; });
+      root.classList.remove('motion-ready');
+      const showAll = function () { items.forEach(function (el) { el.style.opacity = ''; el.style.transform = ''; }); };
+
+      let batch = 0;
+      let batchTimer = null;
+      try {
+      items.forEach(function (el) {
+        M.inView(el, function () {
+          const delay = Math.min(batch, 5) * 0.05;
+          batch += 1;
+          clearTimeout(batchTimer);
+          batchTimer = setTimeout(function () { batch = 0; }, 120);
+          M.animate(el, { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] },
+            { duration: 0.4, delay: delay, ease: ease });
+        }, { amount: 0.2 });
+      });
+      } catch (e) {
+        showAll();
+        return;
+      }
+
+      // Panel hover is a border change only, in CSS
+    })();
+  </script>
+</body>
+
+</html>
